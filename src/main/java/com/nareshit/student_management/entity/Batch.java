@@ -31,8 +31,8 @@ public class Batch
 	@JoinColumn(name="Course_Id", nullable = false )
 	private Course course;
 	
-	 @OneToMany(mappedBy = "batch")
-	 private Set<Enrollment> entrollments;
+	//  @OneToMany(mappedBy = "batch")
+	//  private Set<Enrollment> entrollments;
 
 	
 	

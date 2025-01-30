@@ -30,31 +30,41 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private BatchRepo batchRepo;
 
     @SuppressWarnings("deprecation")
-	@Override
+    @Override
     public ResponseEntity<Map<String, Object>> addEnrollment(EnrollmentSaveDTO enrollmentSaveDTO) {
-    	Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         try {
+            // Enrollment enrollment = new Enrollment(
+            // studentRepo.getById(enrollmentSaveDTO.getStudentId()),
+            // batchRepo.getById(enrollmentSaveDTO.getBatchId()),
+            // enrollmentSaveDTO.getJoinDate(),
+            // enrollmentSaveDTO.getFee()
+            // );
+            // enrollmentRepo.save(enrollment);
+
             Enrollment enrollment = new Enrollment(
-                    studentRepo.getById(enrollmentSaveDTO.getStudentId()),
-                    batchRepo.getById(enrollmentSaveDTO.getBatchId()),
+                    enrollmentSaveDTO.getEnrollId(),
+                    enrollmentSaveDTO.getStudentId(),
+                    enrollmentSaveDTO.getBatchId(),
                     enrollmentSaveDTO.getJoinDate(),
-                    enrollmentSaveDTO.getFee()
-            );
+                    enrollmentSaveDTO.getFee());
             enrollmentRepo.save(enrollment);
+
             response.put("code", 200);
             response.put("status", "success");
-            response.put("message","Enrollment added Successfully!");
-            response.put("data", enrollment);
+            response.put("message", "Enrollment added Successfully!");
+            response.put("data", enrollmentSaveDTO);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-//            throw new RuntimeException("Error while adding enrollment: " + e.getMessage());
-        	
+            // throw new RuntimeException("Error while adding enrollment: " +
+            // e.getMessage());
+
             response.put("code", 400);
             response.put("status", "failed");
-            response.put("message","No record found");
+            response.put("message", "No record found");
             response.put("data", null);
-            
-        	return ResponseEntity.badRequest().body(response);
+
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
@@ -66,11 +76,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             for (Enrollment enrollment : enrollments) {
                 EnrollmentDTO enrollmentDTO = new EnrollmentDTO(
                         enrollment.getEnrollId(),
-                        enrollment.getStudent(),
-                        enrollment.getBatch(),
+                        enrollment.getStudentId(),
+                        enrollment.getBatchId(),
                         enrollment.getJoinDate(),
-                        enrollment.getFee()
-                );
+                        enrollment.getFee());
                 enrollmentDTOList.add(enrollmentDTO);
             }
             return enrollmentDTOList;
@@ -80,14 +89,14 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @SuppressWarnings("deprecation")
-	@Override
+    @Override
     public String updateEnrollment(EnrollmentUpdateDTO enrollmentUpdateDTO) {
         try {
             Enrollment enrollment = enrollmentRepo.findById(enrollmentUpdateDTO.getEnrollId()).orElseThrow(
-                    () -> new EnrollmentNotFoundException("Enrollment with ID " + enrollmentUpdateDTO.getEnrollId() + " not found.")
-            );
-            enrollment.setStudent(studentRepo.getById(enrollmentUpdateDTO.getStudentId()));
-            enrollment.setBatch(batchRepo.getReferenceById(enrollmentUpdateDTO.getBatchId()));
+                    () -> new EnrollmentNotFoundException(
+                            "Enrollment with ID " + enrollmentUpdateDTO.getEnrollId() + " not found."));
+            enrollment.setStudentId(enrollmentUpdateDTO.getStudentId());
+            enrollment.setBatchId(enrollmentUpdateDTO.getBatchId());
             enrollment.setJoinDate(enrollmentUpdateDTO.getJoinDate());
             enrollment.setFee(enrollmentUpdateDTO.getFee());
             enrollmentRepo.save(enrollment);
@@ -116,8 +125,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 }
 
-
-
 /*
  * package com.nareshit.student_management.service.Impl;
  * 
@@ -135,92 +142,95 @@ public class EnrollmentServiceImpl implements EnrollmentService {
  * com.nareshit.student_management.repo.StudentRepo; import
  * com.nareshit.student_management.service.EnrollmentService;
  * 
- * @Service 
+ * @Service
  * public class EnrollmentServiceImpl implements EnrollmentService {
  * 
- * @Autowired 
+ * @Autowired
  * private EnrollmentRepo enrollmentRepo;
  * 
- * @Autowired 
+ * @Autowired
  * private StudentRepo studentRepo;
  * 
- * @Autowired 
+ * @Autowired
  * private BatchRepo batchRepo;
  * 
- * @Override 
+ * @Override
  * public String addEnrollment(EnrollmentSaveDTO entrollmentSaveDTO)
  * {
  * 
- * @SuppressWarnings("deprecation") 
+ * @SuppressWarnings("deprecation")
  * Enrollment enrollment = new Enrollment(
  * studentRepo.getById(entrollmentSaveDTO.getStudentId()),
  * batchRepo.getById(entrollmentSaveDTO.getBatchId()),
- * entrollmentSaveDTO.getJoinDate(), 
- * entrollmentSaveDTO.getFee() 
+ * entrollmentSaveDTO.getJoinDate(),
+ * entrollmentSaveDTO.getFee()
  * );
- * enrollmentRepo.save(enrollment); 
- * return enrollment.getJoinDate(); 
+ * enrollmentRepo.save(enrollment);
+ * return enrollment.getJoinDate();
  * }
  * 
- * @Override 
+ * @Override
  * public List<EnrollmentDTO> getAllEnrollments()
  * {
- *   List<Enrollment>
+ * List<Enrollment>
  * getEnrollments = enrollmentRepo.findAll(); List<EnrollmentDTO>
- * enrollmentDTOList = new ArrayList<>(); 
- * for(Enrollment enrollment:getEnrollments) 
- * { 
+ * enrollmentDTOList = new ArrayList<>();
+ * for(Enrollment enrollment:getEnrollments)
+ * {
  * EnrollmentDTO enrollmentDTO = new EnrollmentDTO(
- * enrollment.getEnrollId(), 
- * enrollment.getStudent(), 
+ * enrollment.getEnrollId(),
+ * enrollment.getStudent(),
  * enrollment.getBatch(),
- * enrollment.getJoinDate(), 
- * enrollment.getFee() 
+ * enrollment.getJoinDate(),
+ * enrollment.getFee()
  * );
- * enrollmentDTOList.add(enrollmentDTO); 
- * } 
- * return enrollmentDTOList; 
+ * enrollmentDTOList.add(enrollmentDTO);
+ * }
+ * return enrollmentDTOList;
  * }
  * 
  * @SuppressWarnings("deprecation")
  * 
- * @Override 
+ * @Override
  * public String updateEnrollment(EnrollmentUpdateDTO enrollmentUpdateDTO)
- *  {
- * if(enrollmentRepo.existsById(enrollmentUpdateDTO.getEnrollId())) 
- * { 
- * Enrollment enrollment = enrollmentRepo.getById(enrollmentUpdateDTO.getEnrollId());
+ * {
+ * if(enrollmentRepo.existsById(enrollmentUpdateDTO.getEnrollId()))
+ * {
+ * Enrollment enrollment =
+ * enrollmentRepo.getById(enrollmentUpdateDTO.getEnrollId());
  * 
- * enrollment.setStudent(studentRepo.getById(enrollmentUpdateDTO.getStudentId()));
+ * enrollment.setStudent(studentRepo.getById(enrollmentUpdateDTO.getStudentId())
+ * );
  * 
- * enrollment.setBatch(batchRepo.getReferenceById(enrollmentUpdateDTO.getBatchId())); 
+ * enrollment.setBatch(batchRepo.getReferenceById(enrollmentUpdateDTO.getBatchId
+ * ()));
  * 
  * enrollment.setJoinDate(enrollmentUpdateDTO.getJoinDate());
  * 
  * enrollment.setFee(enrollmentUpdateDTO.getFee());
  * 
- * enrollmentRepo.save(enrollment); 
+ * enrollmentRepo.save(enrollment);
  * return enrollment.getJoinDate();
- * } 
- * else 
+ * }
+ * else
  * {
  * 
  * System.out.println("Enrollment ID Not Found");
- * } 
- * return null; 
+ * }
+ * return null;
  * }
  * 
- * @Override public boolean deleteEnrollment(long id) 
+ * @Override public boolean deleteEnrollment(long id)
  * {
- * if(enrollmentRepo.existsById(id)) 
- * { 
- * enrollmentRepo.deleteById(id); 
- * } 
+ * if(enrollmentRepo.existsById(id))
+ * {
+ * enrollmentRepo.deleteById(id);
+ * }
  * else
  * {
- * System.out.println("Enrollment ID Not Found"); 
- * } 
- * return false; 
- * } 
+ * System.out.println("Enrollment ID Not Found");
+ * }
+ * return false;
+ * }
  * }
  */

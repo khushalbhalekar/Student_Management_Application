@@ -7,16 +7,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class EnrollmentDTO
 {
 	private long enrollId;
-	private Student student;
-	private Batch batch;
+	private long studentId;
+	private long batchId;
 	private String joinDate;
 	private double fee;
+	// private long enrollId;
+	// private Student student;
+	// private Batch batch;
+	// private String joinDate;
+	// private double fee;
 	// public EnrollmentDTO() {
 	// 	super();
 	// }
